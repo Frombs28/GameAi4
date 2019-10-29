@@ -918,68 +918,98 @@ public class DynamicFlocking {
 
     public Kinematic character;
     public List<NPCController> boids;
+    public float maxAcceleration;
 
-    public DynamicFlocking(Kinematic _character, List<NPCController> _boids)
+    public DynamicFlocking(Kinematic _character, List<NPCController> _boids, float _maxAcceleration)
     {
         character = _character;
         boids = _boids;
+        maxAcceleration = _maxAcceleration;
 
     }
 
     public SteeringOutput getSteering()
     {
         SteeringOutput steering = new SteeringOutput();
-        steering.linear = Vector3.zero;
+        steering.linear = Separation().linear + Cohesion().linear;
 
-        steering.angular = 0f;
-        int neighbors = 0;
-        Vector3 alignmentVec = Vector3.zero;
-        Vector3 cohesionVel = Vector3.zero;
-        Vector3 seperationVel = Vector3.zero;
-        foreach (NPCController boid in boids)
-        {
+        steering = VelocityMatchAndAlign(steering);
 
-            
-            if (boid.k.Equals(character))
-            {
+        return steering;
+    }
+
+    public List<NPCController> prepareNeighourhood() {
+        List<NPCController> nh = new List<NPCController>();
+        foreach(NPCController boid in boids) {
+            if (boid.k.Equals(character)) {
                 continue;
             }
-            
-            if ((character.position - boid.position).magnitude < 100f)
-            {
-
-                cohesionVel += boid.k.position;
-                alignmentVec += boid.k.velocity;
-                
-                seperationVel += (boid.k.position - character.position);
-                neighbors++;
+            if((boid.k.position - character.position).magnitude < 10f){
+                nh.Add(boid);
             }
+
         }
-        if (neighbors == 0)
+
+        return nh;
+    }
+
+    public Vector3 getNeighborhoodCenter(List<NPCController> _nh) {
+
+        Vector3 center= Vector3.zero;
+        int count = 0;
+        foreach (NPCController b in _nh) {
+            center += b.k.position;
+            count++;
+        }
+
+        return center / count;
+    }
+
+    public Vector3 getNeighbourhoodAverageVelocity(List<NPCController> _nh) {
+        Vector3 center = Vector3.zero;
+        int count = 0;
+
+        foreach (NPCController b in _nh)
         {
-            
-            return new SteeringOutput();
+            center += b.k.velocity;
+            count++;
         }
-       
-        alignmentVec /= neighbors;
-        cohesionVel /= neighbors;
-        seperationVel /= neighbors;
 
+        return center / count;
+    }
 
-        seperationVel *= -1f;
+    public SteeringOutput Separation() {
+        Kinematic cotm = new Kinematic() {
+            position = getNeighborhoodCenter(boids)
+            
+        };
 
-        cohesionVel = cohesionVel;
-        seperationVel = seperationVel;
-        alignmentVec = alignmentVec;
+        Debug.DrawLine(character.position, cotm.position, Color.red);
+        SteeringOutput df = new DynamicFlee(character, cotm, maxAcceleration).getSteering();
 
-        cohesionVel = cohesionVel.normalized;
-        alignmentVec = alignmentVec.normalized;
-        seperationVel = seperationVel.normalized;
-       
+        Debug.DrawRay(character.position, df.linear, Color.green);
 
-        steering.linear = (cohesionVel+ alignmentVec + seperationVel);
-        steering.linear.Scale(new Vector3(1f, 0f, 1f));
-        Debug.DrawRay(character.position, steering.linear, Color.green);
-        return steering;
+        return new DynamicFlee(character, cotm, maxAcceleration).getSteering();
+    }
+    public SteeringOutput Cohesion()
+    {
+        Kinematic cotm = new Kinematic()
+        {
+            position = getNeighborhoodCenter(boids)
+        };
+
+        return new DynamicSeek(character, cotm, maxAcceleration).getSteering();
+    }
+
+    public SteeringOutput VelocityMatchAndAlign(SteeringOutput output) {
+        Vector3 vel = getNeighbourhoodAverageVelocity(boids);
+        output.linear = vel - character.velocity;
+        if (output.linear.sqrMagnitude > maxAcceleration) {
+            output.linear.Normalize();
+            output.linear *= maxAcceleration;
+        }
+
+        return output;
+
     }
 }
