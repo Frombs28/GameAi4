@@ -536,8 +536,7 @@ public class SteeringBehavior : MonoBehaviour
         center.gameObject.AddComponent<SteeringBehavior>();
         center.mapState = 10;
         center.transform.position = centroid;
-        float acceleration = maxAcceleration * ((5f - (gameObject.transform.position - centroid).magnitude) / 5f);
-        SteeringOutput so = TempSeek(center, acceleration);
+        SteeringOutput so = TempSeek(center, maxAcceleration);
         Destroy(temp);
         return so;
     }
