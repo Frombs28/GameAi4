@@ -16,7 +16,8 @@ using UnityEngine.UI;
 /// the number keys 0..9 will be used to dial in whichever phase the user wants to see.
 /// </summary>
 
-public class FieldMapManager : MonoBehaviour {
+public class Field2MapManager : MonoBehaviour
+{
     // Set prefabs
     public GameObject PlayerPrefab;     // You, the player
     public GameObject HunterPrefab;     // Agent doing chasing
@@ -39,7 +40,7 @@ public class FieldMapManager : MonoBehaviour {
     public Text SpawnText3;
 
     public int TreeCount;
- 
+
     private List<GameObject> spawnedNPCs;   // When you need to iterate over a number of agents.
     private List<GameObject> trees;
 
@@ -48,7 +49,7 @@ public class FieldMapManager : MonoBehaviour {
 
     //public int Phase => currentPhase;
 
-    LineRenderer line;                 
+    LineRenderer line;
     public GameObject[] Path;
     public Text narrator;                   // 
 
@@ -59,22 +60,22 @@ public class FieldMapManager : MonoBehaviour {
 
     public List<GameObject> boids;
     public GameObject player;
-    public GameObject coTarget;
 
-    void Start() {
+    void Start()
+    {
         narrator.text = "Part 1: Flocking Behavior. The blue boids follow the red player character, flocking appropriately.";
-        foreach(GameObject boid in boids){
-            NPCController npc = boid.GetComponent<NPCController>();
-            npc.NewTarget(player.GetComponent<NPCController>());
-            npc.mapState = 12;
+        foreach (GameObject boid in boids)
+        {
+            boid.GetComponent<NPCController>().NewTarget(player.GetComponent<NPCController>());
         }
-        
+
     }
 
 
-    
 
-    void OnDrawGizmosSelected() {
+
+    void OnDrawGizmosSelected()
+    {
         Gizmos.color = new Color(1, 0, 0, 0.5f);
         Gizmos.DrawCube(spawner1.transform.position, spawner1.transform.localScale);
         Gizmos.DrawCube(spawner2.transform.position, spawner2.transform.localScale);

@@ -30,15 +30,17 @@ public class PlayerController : MonoBehaviour {
     /// useful later on.
     /// </summary>
     void FixedUpdate() {
-        float moveHorizontal = Input.GetAxis("Horizontal");
-        float moveVertical = Input.GetAxis("Vertical");
+        //float moveHorizontal = Input.GetAxis("Horizontal");
+        //float moveVertical = Input.GetAxis("Vertical");
 
         // This simply moves the avatar based on arrow keys.
         // Note that the nose isn't getting correctly aligned. Use your SteeringBehavior to fix that.
         // Change speed on Inspector for "Red"
         // You could instead map this to the mouse if you like.
-        this.transform.position = new Vector3(transform.position.x + speed * moveHorizontal, 1, transform.position.z + speed * moveVertical);
+        //this.transform.position = new Vector3(transform.position.x + speed * moveHorizontal, 1, transform.position.z + speed * moveVertical);
         moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+        moveDirection = moveDirection.normalized;
+        rb.AddForce(moveDirection * speed);
         Vector3 rotateDirection = new Vector3(moveDirection.x, 0, moveDirection.z);
         if (rotateDirection.magnitude > 0)
         {
