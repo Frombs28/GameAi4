@@ -44,11 +44,14 @@ public class NPCController : MonoBehaviour
     public GameObject boids;
     Quaternion targetRotation;
 
+    public List<NPCController> boidsList;
+
     //public NPCController coTarget;
 
     private void Start()
     {
         ai = GetComponent<SteeringBehavior>();
+        
         rb = GetComponent<Rigidbody>();
         line = GetComponent<LineRenderer>();
         stopped = false;
@@ -58,11 +61,25 @@ public class NPCController : MonoBehaviour
         so = new SteeringOutput();
         k = new Kinematic
         {
+            owner = gameObject,
             position = rb.position,
             velocity = Vector3.zero,
             orientation = Mathf.Deg2Rad * rb.rotation.eulerAngles.y
         };
 
+        boidsList = new List<NPCController>();
+        GameObject boidParent = GameObject.Find("Boids");
+        for (int i = 0; i < boidParent.transform.childCount; i++)
+        {
+            if (boidParent.transform.GetChild(i).gameObject.activeInHierarchy)
+            {
+
+                boidsList.Add(boidParent.transform.GetChild(i).GetComponent<NPCController>());
+            }
+            
+        }
+
+        boidsList.Add(GameObject.Find("Red").GetComponent<NPCController>());
 
     }
 
@@ -78,6 +95,10 @@ public class NPCController : MonoBehaviour
     /// </summary>
     void FixedUpdate()
     {
+        if (Input.GetKeyDown(KeyCode.F)) {
+            mapState = 13;
+        }
+        
         switch (mapState)
         {
             case 0:
@@ -96,6 +117,7 @@ public class NPCController : MonoBehaviour
                 {
                     label.text = name.Replace("(Clone)", "") + "\nAlgorithm: Dynamic Seek with Obstacle Avoidance";
                 }
+
                 stopped = false;
                 ai.SetTarget(target);
                 linear = ai.ObstacleSeek().linear;
@@ -233,12 +255,16 @@ public class NPCController : MonoBehaviour
                     //Debug.Log("Nothing");
                 }
                 break;
+            case 13:
+                
+                linear = ai.Flock().linear;
+                break;
         }
         if (mapState == 10)
         {
             return;
         }
-
+        
 
         UpdateMovement(linear, angular, Time.deltaTime);
         if (label)

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -56,11 +57,16 @@ public class SteeringBehavior : MonoBehaviour
 
     public float separateSensorLength = 5f;
 
+
     protected void Start()
     {
 
         agent = GetComponent<NPCController>();
         pathsManager = GameObject.FindGameObjectWithTag("Paths");
+        if (target != null) {
+            GetComponent<NPCController>().NewTarget(target);
+        }
+        
         /*
         if (!pathsManager)
         {
@@ -152,7 +158,7 @@ public class SteeringBehavior : MonoBehaviour
     */
     private float randomBinomial()
     {
-        return Random.value - Random.value;
+        return UnityEngine.Random.value - UnityEngine.Random.value;
     }
 
 
@@ -186,9 +192,15 @@ public class SteeringBehavior : MonoBehaviour
 
     public SteeringOutput Face()
     {
-
-        DynamicAlign a = new DynamicAlign(agent.k, target.k, maxAngularAcceleration, maxRotation, targetRadiusA, slowRadiusA);
-        return new DynamicFace(target.k, a).getSteering();
+        try
+        {
+            DynamicAlign a = new DynamicAlign(agent.k, target.k, maxAngularAcceleration, maxRotation, targetRadiusA, slowRadiusA);
+            return new DynamicFace(target.k, a).getSteering();
+        }
+        catch(Exception e) {
+            return new SteeringOutput();
+        }
+        
     }
 
     public SteeringOutput Align()
@@ -325,8 +337,17 @@ public class SteeringBehavior : MonoBehaviour
 
     public SteeringOutput ObstacleSeek()
     {
-        DynamicSeek sb = new DynamicSeek(agent.k, target.k, maxAcceleration);
-        return ObstacleAvoidance(sb);
+        try
+        {
+            DynamicSeek sb = new DynamicSeek(agent.k, target.k, maxAcceleration);
+            return ObstacleAvoidance(sb);
+        }
+        catch (Exception e) {
+            Debug.Log(e);
+            return new SteeringOutput();
+        }
+        
+        
     }
     public SteeringOutput ObstacleFlee()
     {
@@ -541,37 +562,18 @@ public class SteeringBehavior : MonoBehaviour
         return so;
     }
 
-    /*
-    public SteeringOutput Flock()
-    {
-        SteeringOutput so = new SteeringOutput();
 
-        RaycastHit leftBottom = new RaycastHit();
-        if (Physics.Raycast(s.getCharacter().position, Quaternion.AngleAxis(angleInc * -(i / 2), Vector3.up) * rayVector, out leftBottom, 5f))
-        {
-
-
-            //Debug.DrawRay(collisionDetector.point, collisionDetector.normal * avoidDistance, Color.red);
-            s.setTargetPosition(collisionDetector.point + (collisionDetector.normal * avoidDistance));
-            targetPos = s.getTarget().position;
-            DynamicSeek seekAvoidPoint = new DynamicSeek(s.getCharacter(), s.getTarget(), maxAcceleration);
-            return seekAvoidPoint.getSteering();
-        }
-
-        return so;
+    public SteeringOutput Flock() {
+        DynamicFlocking f = new DynamicFlocking(agent.k, agent.boidsList);
+        
+        return f.getSteering();
     }
-    */
 
-    /*
-    public SteeringOutput PathFollowing() {
-        Path p = new Path(path);
-        Transform currentNode = path[current].transform;
-        DynamicSeek s = new DynamicSeek(agent.k, target.k, maxAcceleration);
-        DynamicPathFollowing pf = new DynamicPathFollowing(p, 10f, path[current].transform, s);
-        pf.path.getClosestPointOnPath(path[current].transform, path[current + 1].transform, agent.k.position);
-        return new SteeringOutput();
+    public void print() {
+        Debug.Log("hello");
     }
-    */
+
+   
 
 
 
