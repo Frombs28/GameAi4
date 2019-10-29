@@ -61,6 +61,7 @@ public class SteeringBehavior : MonoBehaviour
 
         agent = GetComponent<NPCController>();
         pathsManager = GameObject.FindGameObjectWithTag("Paths");
+        /*
         if (!pathsManager)
         {
             return;
@@ -69,6 +70,7 @@ public class SteeringBehavior : MonoBehaviour
         {
             Path.Add(child.gameObject);
         }
+        */
     }
 
     public void SetTarget(NPCController newTarget)
@@ -98,11 +100,6 @@ public class SteeringBehavior : MonoBehaviour
     {
 
         return new DynamicSeek(agent.k, target.k, maxAcceleration).getSteering();
-    }
-
-    public SteeringOutput TempFlee(NPCController newTarget)
-    {
-        return new DynamicFlee(agent.k, newTarget.k, maxAcceleration).getSteering();
     }
 
     public SteeringOutput Arrive()
@@ -498,8 +495,6 @@ public class SteeringBehavior : MonoBehaviour
             return so;
         }
 
-        Debug.Log("Yikes!!");
-
         NPCController closest = nearby[0];
 
         foreach (NPCController npc in nearby)
@@ -512,6 +507,39 @@ public class SteeringBehavior : MonoBehaviour
         }
 
         return TempFlee(closest);
+    }
+
+
+    public SteeringOutput TempFlee(NPCController newTarget)
+    {
+        return new DynamicFlee(agent.k, newTarget.k, maxAcceleration).getSteering();
+    }
+
+    public SteeringOutput TempSeek(NPCController center, float acceleration)
+    {
+        return new DynamicSeek(agent.k, center.k, acceleration).getSteering();
+    }
+
+    public SteeringOutput Cohesion()
+    {
+        // Find average of boids in flock
+        Vector3 centroid = Vector3.zero;
+        foreach(Transform child in gameObject.GetComponent<NPCController>().boids.transform)
+        {
+            centroid += child.transform.position;
+        }
+        centroid = centroid / 20;
+        GameObject temp = new GameObject();
+        temp.AddComponent<NPCController>();
+        NPCController center = temp.GetComponent<NPCController>();
+        center.gameObject.AddComponent<Rigidbody>();
+        center.gameObject.AddComponent<SteeringBehavior>();
+        center.mapState = 10;
+        center.transform.position = centroid;
+        float acceleration = maxAcceleration * ((5f - (gameObject.transform.position - centroid).magnitude) / 5f);
+        SteeringOutput so = TempSeek(center, acceleration);
+        Destroy(temp);
+        return so;
     }
 
     /*

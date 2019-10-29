@@ -41,6 +41,8 @@ public class NPCController : MonoBehaviour
     public float weightSeparate = 1f;
     public float weightAlign = 1f;
     public float weightCohesion = 1f;
+    public GameObject boids;
+
     //public NPCController coTarget;
 
     private void Start()
@@ -212,8 +214,9 @@ public class NPCController : MonoBehaviour
                 //Debug.Log(separationVector.magnitude);
                 //linear = separationVector;
                 //Vector3 alignVector = ai.Align().linear * weightAlign;
-                Vector3 align = ai.PursueArrive().linear * weightCohesion;
-                linear = separationVector + align;
+                Vector3 alignVector = ai.PursueArrive().linear * weightAlign;
+                Vector3 cohesionVector = ai.Cohesion().linear * weightCohesion;
+                linear = separationVector + alignVector;
                 //Debug.Log(cohesionVector.magnitude);
                 angular = ai.Face().angular;
                 break;
