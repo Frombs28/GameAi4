@@ -232,17 +232,15 @@ public class NPCController : MonoBehaviour
                 break;
             case 12:
                 ai.SetTarget(target);
-
                 Vector3 separationVector = ai.Separate().linear * weightSeparate;
-                //Debug.Log(separationVector.magnitude);
-                //linear = separationVector;
-                //Vector3 alignVector = ai.Align().linear * weightAlign;
                 Vector3 alignVector = ai.PursueArrive().linear * weightAlign;
                 Vector3 cohesionVector = ai.Cohesion().linear * weightCohesion;
                 linear = separationVector + alignVector + cohesionVector;
-                //Debug.Log(cohesionVector.magnitude);
-                //angular = 0;
+                angular = ai.Face().angular;
+                /*
                 Vector3 rotateDirection = new Vector3(linear.x, 0, linear.z);
+
+                // Rotate
                 if (rotateDirection.magnitude > 0)
                 {
                     targetRotation = Quaternion.LookRotation(rotateDirection);
@@ -254,6 +252,7 @@ public class NPCController : MonoBehaviour
                 {
                     //Debug.Log("Nothing");
                 }
+                */
                 break;
             case 13:
                 
@@ -276,7 +275,7 @@ public class NPCController : MonoBehaviour
     public void UpdateFromPlayer(Vector3 newLinear, float newAngular)
     {
         so.linear = newLinear;
-        //so.angular = newAngular;
+        so.angular = newAngular;
         k.position = rb.position;
 
         k.Update(so, maxSpeed, Time.deltaTime);
@@ -309,7 +308,7 @@ public class NPCController : MonoBehaviour
             return;
         }
         so.linear = _linear;
-        //so.angular = _angular;
+        so.angular = _angular;
         k.position = rb.position;
 
         k.Update(so, maxSpeed, Time.deltaTime);

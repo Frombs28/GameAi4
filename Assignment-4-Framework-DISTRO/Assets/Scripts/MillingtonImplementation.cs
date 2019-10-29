@@ -121,10 +121,10 @@ public struct Kinematic
 
         position += velocity * time;
         //orientation + angular velocity
-        //orientation += rotation * time;
+        orientation += rotation * time;
         //
         velocity += steering.linear * time;
-        //orientation += steering.angular * time;
+        orientation += steering.angular * time;
 
         if (velocity.magnitude > _maxSpeed)
         {
