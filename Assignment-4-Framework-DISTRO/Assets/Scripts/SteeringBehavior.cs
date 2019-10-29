@@ -405,7 +405,7 @@ public class SteeringBehavior : MonoBehaviour
         RaycastHit ray = new RaycastHit();
         int layerMask = 1 << 2;
 
-        for(int i = 0; i < 7; i++){
+        for(int i = 0; i < 9; i++){
             
             // Test if any other boids are close by. If so, figure out who is closest and call evade on them.
 
@@ -506,6 +506,34 @@ public class SteeringBehavior : MonoBehaviour
                     nearby.Add(ray.collider.gameObject.GetComponent<NPCController>());
                 }
             }
+
+            if (i == 7)
+            {
+                Debug.DrawRay(gameObject.transform.position + Quaternion.AngleAxis(135f, transform.up) * transform.forward, Quaternion.AngleAxis(135f, transform.up) * transform.forward * separateSensorLength, Color.black);
+                // Angle back right
+                if (Physics.Raycast(gameObject.transform.position + Quaternion.AngleAxis(135f, transform.up) * transform.forward, Quaternion.AngleAxis(135f, transform.up) * transform.forward, out ray, separateSensorLength, layerMask))
+                {
+                    if (ray.collider.gameObject.GetComponent<NPCController>() == null)
+                    {
+                        continue;
+                    }
+                    nearby.Add(ray.collider.gameObject.GetComponent<NPCController>());
+                }
+            }
+
+            if (i == 7)
+            {
+                Debug.DrawRay(gameObject.transform.position + Quaternion.AngleAxis(-135f, transform.up) * transform.forward, Quaternion.AngleAxis(-135f, transform.up) * transform.forward * separateSensorLength, Color.black);
+                // Angle back right
+                if (Physics.Raycast(gameObject.transform.position + Quaternion.AngleAxis(-135f, transform.up) * transform.forward, Quaternion.AngleAxis(-135f, transform.up) * transform.forward, out ray, separateSensorLength, layerMask))
+                {
+                    if (ray.collider.gameObject.GetComponent<NPCController>() == null)
+                    {
+                        continue;
+                    }
+                    nearby.Add(ray.collider.gameObject.GetComponent<NPCController>());
+                }
+            }
         }
 
         // Now, determine which one is the closest.
@@ -557,8 +585,7 @@ public class SteeringBehavior : MonoBehaviour
         center.gameObject.AddComponent<SteeringBehavior>();
         center.mapState = 10;
         center.transform.position = centroid;
-        float acceleration = maxAcceleration * ((5f - (gameObject.transform.position - centroid).magnitude) / 5f);
-        SteeringOutput so = TempSeek(center, acceleration);
+        SteeringOutput so = TempSeek(center, maxAcceleration);
         Destroy(temp);
         return so;
     }

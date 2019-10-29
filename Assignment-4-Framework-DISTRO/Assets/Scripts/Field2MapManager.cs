@@ -50,7 +50,6 @@ public class Field2MapManager : MonoBehaviour
     //public int Phase => currentPhase;
 
     LineRenderer line;
-    public GameObject[] Path;
     public Text narrator;                   // 
 
     // Use this for initialization. Create any initial NPCs here and store them in the 
@@ -58,16 +57,31 @@ public class Field2MapManager : MonoBehaviour
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public List<GameObject> boids;
-    public GameObject player;
+    public List<GameObject> boids1;
+    public GameObject follow1;
+    public List<GameObject> boids2;
+    public GameObject follow2;
+    public GameObject coTarget;
+    public GameObject[] Path1;
+    public GameObject[] Path2;
 
     void Start()
     {
-        narrator.text = "Part 1: Flocking Behavior. The blue boids follow the red player character, flocking appropriately.";
-        foreach (GameObject boid in boids)
+        narrator.text = "Part 2: Cone Check and Collision Prediction for Obstacle Avoidance.";
+        foreach (GameObject boid in boids1)
         {
-            boid.GetComponent<NPCController>().NewTarget(player.GetComponent<NPCController>());
+            NPCController npc = boid.GetComponent<NPCController>();
+            npc.NewTarget(follow1.GetComponent<NPCController>());
+            npc.mapState = 12;
         }
+        foreach (GameObject boid in boids2)
+        {
+            NPCController npc = boid.GetComponent<NPCController>();
+            npc.NewTarget(follow2.GetComponent<NPCController>());
+            npc.mapState = 12;
+        }
+        follow1.GetComponent<NPCController>().mapState = 9;
+        follow2.GetComponent<NPCController>().mapState = 9;
 
     }
 

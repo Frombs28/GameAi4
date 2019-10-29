@@ -42,6 +42,7 @@ public class NPCController : MonoBehaviour
     public float weightAlign = 1f;
     public float weightCohesion = 1f;
     public GameObject boids;
+    Quaternion targetRotation;
 
     public List<NPCController> boidsList;
 
@@ -231,16 +232,27 @@ public class NPCController : MonoBehaviour
                 break;
             case 12:
                 ai.SetTarget(target);
-
                 Vector3 separationVector = ai.Separate().linear * weightSeparate;
-                //Debug.Log(separationVector.magnitude);
-                //linear = separationVector;
-                //Vector3 alignVector = ai.Align().linear * weightAlign;
                 Vector3 alignVector = ai.PursueArrive().linear * weightAlign;
                 Vector3 cohesionVector = ai.Cohesion().linear * weightCohesion;
-                linear = separationVector + alignVector;
-                //Debug.Log(cohesionVector.magnitude);
+                linear = separationVector + alignVector + cohesionVector;
                 angular = ai.Face().angular;
+                /*
+                Vector3 rotateDirection = new Vector3(linear.x, 0, linear.z);
+
+                // Rotate
+                if (rotateDirection.magnitude > 0)
+                {
+                    targetRotation = Quaternion.LookRotation(rotateDirection);
+                    Debug.DrawLine(transform.position, rotateDirection, Color.cyan);
+                    this.transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 180f * Time.deltaTime);
+                    //Debug.Log("Rotating");
+                }
+                else
+                {
+                    //Debug.Log("Nothing");
+                }
+                */
                 break;
             case 13:
                 
@@ -317,20 +329,20 @@ public class NPCController : MonoBehaviour
     /// <param name="radius">Desired radius of the concentric circle</param>
     public void DrawConcentricCircle(float radius)
     {
-        line.positionCount = 51;
-        line.useWorldSpace = false;
-        float x;
-        float z;
-        float angle = 20f;
+        //line.positionCount = 51;
+        //line.useWorldSpace = false;
+        //float x;
+        //float z;
+        //float angle = 20f;
 
-        for (int i = 0; i < 51; i++)
-        {
-            x = Mathf.Sin(Mathf.Deg2Rad * angle) * radius;
-            z = Mathf.Cos(Mathf.Deg2Rad * angle) * radius;
+        //for (int i = 0; i < 51; i++)
+        //{
+        //    x = Mathf.Sin(Mathf.Deg2Rad * angle) * radius;
+        //    z = Mathf.Cos(Mathf.Deg2Rad * angle) * radius;
 
-            line.SetPosition(i, new Vector3(x, 0, z));
-            angle += (360f / 51);
-        }
+        //    line.SetPosition(i, new Vector3(x, 0, z));
+        //    angle += (360f / 51);
+        //}
     }
 
     /// <summary>
@@ -341,28 +353,28 @@ public class NPCController : MonoBehaviour
     /// <param name="radius">>Desired radius of the circle</param>
     public void DrawCircle(Vector3 position, float radius)
     {
-        line.positionCount = 51;
-        line.useWorldSpace = true;
-        float x;
-        float z;
-        float angle = 20f;
+        //line.positionCount = 51;
+        //line.useWorldSpace = true;
+        //float x;
+        //float z;
+        //float angle = 20f;
 
-        for (int i = 0; i < 51; i++)
-        {
-            x = Mathf.Sin(Mathf.Deg2Rad * angle) * radius;
-            z = Mathf.Cos(Mathf.Deg2Rad * angle) * radius;
+        //for (int i = 0; i < 51; i++)
+        //{
+        //    x = Mathf.Sin(Mathf.Deg2Rad * angle) * radius;
+        //    z = Mathf.Cos(Mathf.Deg2Rad * angle) * radius;
 
-            line.SetPosition(i, new Vector3(x, 0, z) + position);
-            angle += (360f / 51);
-        }
+        //    line.SetPosition(i, new Vector3(x, 0, z) + position);
+        //    angle += (360f / 51);
+        //}
     }
 
     public void DrawLine(Vector3 myPos, Vector3 position)
     {
-        line.positionCount = 2;
-        line.useWorldSpace = true;
-        line.SetPosition(0, myPos);
-        line.SetPosition(1, position);
+        //line.positionCount = 2;
+        //line.useWorldSpace = true;
+        //line.SetPosition(0, myPos);
+        //line.SetPosition(1, position);
     }
 
     void SetFalse()
