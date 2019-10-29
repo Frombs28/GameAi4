@@ -92,11 +92,29 @@ public interface SteeringBehaviour
 
 public struct Kinematic
 {
+    public GameObject owner;
     public Vector3 position;
     public float orientation;
     public Vector3 velocity;
     public float rotation; //angular velocity
     public float maxSpeed;
+
+
+    public override bool Equals(object obj)
+    {
+        if (!(obj is Kinematic))
+            return false;
+
+        Kinematic mys = (Kinematic)obj;
+        // compare elements here
+        return position.Equals(mys.position) &&
+                
+                velocity.Equals(mys.velocity) &&
+                Mathf.Abs(rotation - mys.rotation) < 0.01f &&
+                Mathf.Abs(maxSpeed - mys.maxSpeed) < 0.01f;
+
+    }
+
 
     public void Update(SteeringOutput steering, float _maxSpeed, float time)
     {
@@ -894,4 +912,74 @@ class Path
         return Vector3.zero;
     }
 
+}
+
+public class DynamicFlocking {
+
+    public Kinematic character;
+    public List<NPCController> boids;
+
+    public DynamicFlocking(Kinematic _character, List<NPCController> _boids)
+    {
+        character = _character;
+        boids = _boids;
+
+    }
+
+    public SteeringOutput getSteering()
+    {
+        SteeringOutput steering = new SteeringOutput();
+        steering.linear = Vector3.zero;
+
+        steering.angular = 0f;
+        int neighbors = 0;
+        Vector3 alignmentVec = Vector3.zero;
+        Vector3 cohesionVel = Vector3.zero;
+        Vector3 seperationVel = Vector3.zero;
+        foreach (NPCController boid in boids)
+        {
+
+            
+            if (boid.k.Equals(character))
+            {
+                continue;
+            }
+            
+            if ((character.position - boid.position).magnitude < 100f)
+            {
+
+                cohesionVel += boid.k.position;
+                alignmentVec += boid.k.velocity;
+                
+                seperationVel += (boid.k.position - character.position);
+                neighbors++;
+            }
+        }
+        if (neighbors == 0)
+        {
+            
+            return new SteeringOutput();
+        }
+       
+        alignmentVec /= neighbors;
+        cohesionVel /= neighbors;
+        seperationVel /= neighbors;
+
+
+        seperationVel *= -1f;
+
+        cohesionVel = cohesionVel;
+        seperationVel = seperationVel;
+        alignmentVec = alignmentVec;
+
+        cohesionVel = cohesionVel.normalized;
+        alignmentVec = alignmentVec.normalized;
+        seperationVel = seperationVel.normalized;
+       
+
+        steering.linear = (cohesionVel+ alignmentVec + seperationVel);
+        steering.linear.Scale(new Vector3(1f, 0f, 1f));
+        Debug.DrawRay(character.position, steering.linear, Color.green);
+        return steering;
+    }
 }

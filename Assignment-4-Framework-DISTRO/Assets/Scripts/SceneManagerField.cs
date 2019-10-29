@@ -14,6 +14,7 @@ public class SceneManagerField : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        return;
         if(Input.GetKeyDown(KeyCode.Alpha1))
         {
             SceneManager.LoadScene(0, LoadSceneMode.Single);
