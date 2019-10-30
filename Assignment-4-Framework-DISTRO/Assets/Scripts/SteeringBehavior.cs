@@ -113,7 +113,7 @@ public class SteeringBehavior : MonoBehaviour
         DynamicArrive da = new DynamicArrive(agent.k, target.k, maxAcceleration, maxSpeed, targetRadiusL, slowRadiusL);
         agent.DrawCircle(target.k.position, slowRadiusL);
         SteeringOutput so = da.getSteering();
-        if (pathFollow && !change && current < 5)
+        if (pathFollow && !change && current < 3)
         {
             current++;
             change = true;
@@ -405,7 +405,7 @@ public class SteeringBehavior : MonoBehaviour
         RaycastHit ray = new RaycastHit();
         int layerMask = 1 << 2;
 
-        for(int i = 0; i < 9; i++){
+        for(int i = 0; i < 12; i++){
             
             // Test if any other boids are close by. If so, figure out who is closest and call evade on them.
 
@@ -509,9 +509,9 @@ public class SteeringBehavior : MonoBehaviour
 
             if (i == 7)
             {
-                Debug.DrawRay(gameObject.transform.position + Quaternion.AngleAxis(135f, transform.up) * transform.forward, Quaternion.AngleAxis(135f, transform.up) * transform.forward * separateSensorLength, Color.black);
+                Debug.DrawRay(gameObject.transform.position + Quaternion.AngleAxis(120f, transform.up) * transform.forward, Quaternion.AngleAxis(120f, transform.up) * transform.forward * separateSensorLength, Color.black);
                 // Angle back right
-                if (Physics.Raycast(gameObject.transform.position + Quaternion.AngleAxis(135f, transform.up) * transform.forward, Quaternion.AngleAxis(135f, transform.up) * transform.forward, out ray, separateSensorLength, layerMask))
+                if (Physics.Raycast(gameObject.transform.position + Quaternion.AngleAxis(120f, transform.up) * transform.forward, Quaternion.AngleAxis(120f, transform.up) * transform.forward, out ray, separateSensorLength, layerMask))
                 {
                     if (ray.collider.gameObject.GetComponent<NPCController>() == null)
                     {
@@ -521,11 +521,53 @@ public class SteeringBehavior : MonoBehaviour
                 }
             }
 
-            if (i == 7)
+            if (i == 8)
             {
-                Debug.DrawRay(gameObject.transform.position + Quaternion.AngleAxis(-135f, transform.up) * transform.forward, Quaternion.AngleAxis(-135f, transform.up) * transform.forward * separateSensorLength, Color.black);
+                Debug.DrawRay(gameObject.transform.position + Quaternion.AngleAxis(-120f, transform.up) * transform.forward, Quaternion.AngleAxis(-120f, transform.up) * transform.forward * separateSensorLength, Color.black);
+                // Angle back left
+                if (Physics.Raycast(gameObject.transform.position + Quaternion.AngleAxis(-120f, transform.up) * transform.forward, Quaternion.AngleAxis(-120f, transform.up) * transform.forward, out ray, separateSensorLength, layerMask))
+                {
+                    if (ray.collider.gameObject.GetComponent<NPCController>() == null)
+                    {
+                        continue;
+                    }
+                    nearby.Add(ray.collider.gameObject.GetComponent<NPCController>());
+                }
+            }
+
+            if (i == 9)
+            {
+                Debug.DrawRay(gameObject.transform.position + Quaternion.AngleAxis(150f, transform.up) * transform.forward, Quaternion.AngleAxis(150f, transform.up) * transform.forward * separateSensorLength, Color.cyan);
                 // Angle back right
-                if (Physics.Raycast(gameObject.transform.position + Quaternion.AngleAxis(-135f, transform.up) * transform.forward, Quaternion.AngleAxis(-135f, transform.up) * transform.forward, out ray, separateSensorLength, layerMask))
+                if (Physics.Raycast(gameObject.transform.position + Quaternion.AngleAxis(150f, transform.up) * transform.forward, Quaternion.AngleAxis(150f, transform.up) * transform.forward, out ray, separateSensorLength, layerMask))
+                {
+                    if (ray.collider.gameObject.GetComponent<NPCController>() == null)
+                    {
+                        continue;
+                    }
+                    nearby.Add(ray.collider.gameObject.GetComponent<NPCController>());
+                }
+            }
+
+            if (i == 10)
+            {
+                Debug.DrawRay(gameObject.transform.position + Quaternion.AngleAxis(-150f, transform.up) * transform.forward, Quaternion.AngleAxis(-150f, transform.up) * transform.forward * separateSensorLength, Color.cyan);
+                // Angle back left
+                if (Physics.Raycast(gameObject.transform.position + Quaternion.AngleAxis(-150f, transform.up) * transform.forward, Quaternion.AngleAxis(-150f, transform.up) * transform.forward, out ray, separateSensorLength, layerMask))
+                {
+                    if (ray.collider.gameObject.GetComponent<NPCController>() == null)
+                    {
+                        continue;
+                    }
+                    nearby.Add(ray.collider.gameObject.GetComponent<NPCController>());
+                }
+            }
+
+            if (i == 11)
+            {
+                Debug.DrawRay(gameObject.transform.position - gameObject.transform.forward, -transform.forward * separateSensorLength, Color.white);
+                // Straight forward
+                if (Physics.Raycast(gameObject.transform.position - gameObject.transform.forward, -gameObject.transform.forward, out ray, separateSensorLength, layerMask))
                 {
                     if (ray.collider.gameObject.GetComponent<NPCController>() == null)
                     {
@@ -595,6 +637,17 @@ public class SteeringBehavior : MonoBehaviour
         DynamicFlocking f = new DynamicFlocking(agent.k, agent.boidsList);
         
         return f.getSteering();
+    }
+
+    public SteeringOutput FlockBehavior(float weightSeparate, float weightAlign, float weightCohesion)
+    {
+        Vector3 separationVector = Separate().linear * weightSeparate;
+        Vector3 alignVector = PursueArrive().linear * weightAlign;
+        Vector3 cohesionVector = Cohesion().linear * weightCohesion;
+        Vector3 linear = separationVector + alignVector + cohesionVector;
+        SteeringOutput so = new SteeringOutput();
+        so.linear = linear;
+        return so;
     }
 
     public void print() {
