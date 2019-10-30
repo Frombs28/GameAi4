@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
 public class MillingtonImplementation : MonoBehaviour
 {
@@ -611,7 +612,7 @@ class DynamicWander : SteeringBehaviour
     }
     private float randomBinomial()
     {
-        return Random.value - Random.value;
+        return UnityEngine.Random.value - UnityEngine.Random.value;
     }
 
     private Vector3 asVector(float _orientation)
@@ -624,7 +625,7 @@ class DynamicWander : SteeringBehaviour
 
 
         Vector3 centerOfCircle = getCharacter().position + getCharacter().velocity.normalized * wanderOffset;
-        Vector2 randomPoint = Random.insideUnitCircle.normalized;
+        Vector2 randomPoint = UnityEngine.Random.insideUnitCircle.normalized;
         Vector3 target = centerOfCircle + new Vector3(randomPoint.x, 0f, randomPoint.y) * wanderRadius;
         Debug.DrawLine(centerOfCircle, target, Color.blue);
         Kinematic targetK = new Kinematic
@@ -684,6 +685,7 @@ class DynamicObstacleAvoidance : SteeringBehaviour
 
     public SteeringOutput getSteering()
     {
+        
         Vector3 rayVector = s.getCharacter().velocity;
         rayVector.Normalize();
         rayVector *= lookahead;
@@ -706,23 +708,32 @@ class DynamicObstacleAvoidance : SteeringBehaviour
 
 
             rotRayVec.Scale(new Vector3(1f, 0f, 1f));
-            //Debug.DrawRay(s.getCharacter().position, rotRayVec, Color.cyan);
+            Debug.DrawRay(s.getCharacter().position, rotRayVec, Color.cyan);
             if (Physics.Raycast(s.getCharacter().position, rotRayVec, out collisionDetector, lookahead))
             {
 
 
-                //Debug.DrawRay(collisionDetector.point, collisionDetector.normal * avoidDistance, Color.red);
+                Debug.DrawRay(collisionDetector.point, collisionDetector.normal * avoidDistance, Color.red);
                 s.setTargetPosition(collisionDetector.point + (collisionDetector.normal * avoidDistance));
-                targetPos = s.getTarget().position;
-                DynamicSeek seekAvoidPoint = new DynamicSeek(s.getCharacter(), s.getTarget(), maxAcceleration);
+                Kinematic avoid = new Kinematic() {
+                    position = collisionDetector.point + (collisionDetector.normal * avoidDistance)
+                }; 
+                //targetPos = s.getTarget().position;
+
+                DynamicSeek seekAvoidPoint = new DynamicSeek(s.getCharacter(), avoid, maxAcceleration);
                 return seekAvoidPoint.getSteering();
             }
 
 
         }
 
+        try
+        {
+            targetPos = s.getTarget().position;
+        }
+        catch (Exception e) {
 
-        targetPos = s.getTarget().position;
+        }
         return s.getSteering();
 
 
@@ -914,26 +925,38 @@ class Path
 
 }
 
-public class DynamicFlocking {
+public class DynamicFlocking : SteeringBehaviour
+{
 
     public Kinematic character;
     public List<NPCController> boids;
     public float maxAcceleration;
+    public float avoidDistance;
+    public float lookahead;
 
-    public DynamicFlocking(Kinematic _character, List<NPCController> _boids, float _maxAcceleration)
+
+    public DynamicFlocking(Kinematic _character, List<NPCController> _boids, float _maxAcceleration
+                            )
     {
         character = _character;
         boids = _boids;
         maxAcceleration = _maxAcceleration;
+        //avoidDistance = _avoidDistance;
+        //lookahead = _lookahead;
 
     }
 
     public SteeringOutput getSteering()
     {
+        if (prepareNeighourhood().Count == 0) {
+
+            return new SteeringOutput();
+        }
         SteeringOutput steering = new SteeringOutput();
         steering.linear = Separation().linear + Cohesion().linear;
 
         steering = VelocityMatchAndAlign(steering);
+        steering.linear *= 10f;
 
         return steering;
     }
@@ -974,42 +997,68 @@ public class DynamicFlocking {
             center += b.k.velocity;
             count++;
         }
-
+        
         return center / count;
     }
 
     public SteeringOutput Separation() {
         Kinematic cotm = new Kinematic() {
-            position = getNeighborhoodCenter(boids)
+            position = getNeighborhoodCenter(prepareNeighourhood())
             
         };
 
-        Debug.DrawLine(character.position, cotm.position, Color.red);
-        SteeringOutput df = new DynamicFlee(character, cotm, maxAcceleration).getSteering();
 
-        Debug.DrawRay(character.position, df.linear, Color.green);
 
-        return new DynamicFlee(character, cotm, maxAcceleration).getSteering();
+        DynamicFlee df = new DynamicFlee(character, cotm, maxAcceleration);
+        return df.getSteering();
     }
     public SteeringOutput Cohesion()
     {
         Kinematic cotm = new Kinematic()
         {
-            position = getNeighborhoodCenter(boids)
+            position = getNeighborhoodCenter(prepareNeighourhood())
         };
-
-        return new DynamicSeek(character, cotm, maxAcceleration).getSteering();
+        DynamicSeek ds = new DynamicSeek(character, cotm, maxAcceleration);
+        return ds.getSteering();
     }
 
     public SteeringOutput VelocityMatchAndAlign(SteeringOutput output) {
-        Vector3 vel = getNeighbourhoodAverageVelocity(boids);
+        Vector3 vel = getNeighbourhoodAverageVelocity(prepareNeighourhood());
         output.linear = vel - character.velocity;
-        if (output.linear.sqrMagnitude > maxAcceleration) {
+        if (output.linear.sqrMagnitude > maxAcceleration)
+        {
             output.linear.Normalize();
             output.linear *= maxAcceleration;
         }
 
+        Kinematic targetToFace = new Kinematic() {
+            position = character.position + output.linear*10f
+        };
+
+        Debug.DrawLine(character.position, targetToFace.position, Color.green);
+        DynamicAlign a = new DynamicAlign(character, targetToFace, 100f, 100f, 100f, 100f);
+        output.angular = new DynamicFace(targetToFace, a).getSteering().angular;
         return output;
 
+    }
+
+    public Kinematic getCharacter()
+    {
+        return character;
+    }
+
+    public Kinematic getTarget()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void setTargetPosition(Vector3 newTargetPos)
+    {
+        return;
+    }
+
+    public bool isStuck()
+    {
+        return false;
     }
 }
