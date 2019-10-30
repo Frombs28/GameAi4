@@ -232,10 +232,11 @@ public class NPCController : MonoBehaviour
                 break;
             case 12:
                 ai.SetTarget(target);
-                Vector3 separationVector = ai.Separate().linear * weightSeparate;
-                Vector3 alignVector = ai.PursueArrive().linear * weightAlign;
-                Vector3 cohesionVector = ai.Cohesion().linear * weightCohesion;
-                linear = separationVector + alignVector + cohesionVector;
+                //Vector3 separationVector = ai.Separate().linear * weightSeparate;
+                //Vector3 alignVector = ai.PursueArrive().linear * weightAlign;
+                //Vector3 cohesionVector = ai.Cohesion().linear * weightCohesion;
+                //linear = separationVector + alignVector + cohesionVector;
+                linear = ai.FlockBehavior(weightSeparate, weightAlign, weightCohesion).linear;
                 angular = ai.Face().angular;
                 /*
                 Vector3 rotateDirection = new Vector3(linear.x, 0, linear.z);
