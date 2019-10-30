@@ -634,7 +634,7 @@ public class SteeringBehavior : MonoBehaviour
 
 
     public SteeringOutput Flock() {
-        DynamicFlocking f = new DynamicFlocking(agent.k, agent.boidsList);
+        DynamicFlocking f = new DynamicFlocking(agent.k, agent.boidsList, maxAcceleration);
         
         return f.getSteering();
     }
