@@ -711,7 +711,11 @@ class DynamicObstacleAvoidance : SteeringBehaviour
             Debug.DrawRay(s.getCharacter().position, rotRayVec, Color.cyan);
             if (Physics.Raycast(s.getCharacter().position, rotRayVec, out collisionDetector, lookahead))
             {
-
+                Debug.Log(s.getCharacter().owner.name +"colliding with" + collisionDetector.collider.gameObject.name);
+                if (collisionDetector.collider.gameObject == s.getCharacter().owner) {
+                    Debug.Log("continue");
+                    continue;
+                }
 
                 Debug.DrawRay(collisionDetector.point, collisionDetector.normal * avoidDistance, Color.red);
                 s.setTargetPosition(collisionDetector.point + (collisionDetector.normal * avoidDistance));
@@ -956,7 +960,7 @@ public class DynamicFlocking : SteeringBehaviour
         steering.linear = Separation().linear + Cohesion().linear;
 
         steering = VelocityMatchAndAlign(steering);
-        steering.linear *= 10f;
+        steering.linear *= 20f;
 
         return steering;
     }
@@ -969,6 +973,7 @@ public class DynamicFlocking : SteeringBehaviour
             }
             if((boid.k.position - character.position).magnitude < 10f){
                 nh.Add(boid);
+                Debug.DrawLine(character.position, boid.k.position, Color.blue);
             }
 
         }
