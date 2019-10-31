@@ -712,7 +712,7 @@ class DynamicObstacleAvoidance : SteeringBehaviour
             if (Physics.Raycast(s.getCharacter().position, rotRayVec, out collisionDetector, lookahead))
             {
 
-                if (collisionDetector.collider.gameObject == s.getCharacter().owner) {
+                if (collisionDetector.collider.gameObject.Equals(s.getCharacter().owner)) {
                     continue;
                 }
 
