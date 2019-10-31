@@ -41,6 +41,9 @@ public class PlayerController : MonoBehaviour {
         moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
         moveDirection = moveDirection.normalized;
         rb.AddForce(moveDirection * speed);
+        GetComponent<NPCController>().k.velocity = rb.velocity;
+        GetComponent<NPCController>().k.position = rb.position;
+        //GetComponent<NPCController>().k.velocity = rb.velocity;
         Vector3 rotateDirection = new Vector3(moveDirection.x, 0, moveDirection.z);
         if (rotateDirection.magnitude > 0)
         {

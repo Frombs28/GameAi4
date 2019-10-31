@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -220,13 +219,17 @@ public class SteeringBehavior : MonoBehaviour
 
     public SteeringOutput ObstacleAvoidance(SteeringBehaviour behaviourWhenNotAvoiding)
     {
-        Kinematic currentTarget = target.k;
+        Kinematic currentTarget;
+        if (target != null) {
+            currentTarget = target.k;
 
-        float dis = (agent.k.position - currentTarget.position).magnitude;
-        if (dis <= slowRadiusL && agent.mapState != 7)
-        {
-            return Arrive();
+            float dis = (agent.k.position - currentTarget.position).magnitude;
+            if (dis <= slowRadiusL && agent.mapState != 7)
+            {
+                return Arrive();
+            }
         }
+        
         stationaryTimeIncrimented = false;
 
         //trigger, sets unstuck position
@@ -271,29 +274,7 @@ public class SteeringBehavior : MonoBehaviour
             stationaryTime -= Time.deltaTime;
             stationaryTime = Mathf.Max(0, stationaryTime);
         }
-        //if (Vector3.Dot(agent.k.velocity.normalized, (currentTarget.position - agent.k.position).normalized) < 0.8f)
-        //{
-
-        //    if (deltaPos.x < theta)
-        //    {
-        //        stationaryTime += Time.deltaTime;
-        //        stationaryTimeIncrimented = true;
-        //    }
-
-        //    //check for z
-        //    else if (deltaPos.z < theta)
-        //    {
-        //        if (!stationaryTimeIncrimented)
-        //        {
-        //            stationaryTime += Time.deltaTime;
-        //        }
-        //    }
-        //}
-        //else {
-
-
-        //    //stationaryTime = 0;
-        //}
+     
         DynamicObstacleAvoidance doa = new DynamicObstacleAvoidance(3f, 2f, s, maxAcceleration);
         SteeringOutput so = doa.getSteering();
         if (agent.mapState == 7)
@@ -636,7 +617,7 @@ public class SteeringBehavior : MonoBehaviour
     public SteeringOutput Flock() {
         DynamicFlocking f = new DynamicFlocking(agent.k, agent.boidsList, maxAcceleration);
         
-        return f.getSteering();
+        return ObstacleAvoidance(f);
     }
 
     public SteeringOutput FlockBehavior(float weightSeparate, float weightAlign, float weightCohesion)
