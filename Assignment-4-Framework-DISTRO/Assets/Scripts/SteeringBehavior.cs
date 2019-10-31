@@ -57,7 +57,9 @@ public class SteeringBehavior : MonoBehaviour
 
     public float separateSensorLength = 5f;
 
-
+    public float weightSeparate = 1f;
+    public float weightAlign = 1f;
+    public float weightCohesion = 1f;
     protected void Start()
     {
 
@@ -616,7 +618,7 @@ public class SteeringBehavior : MonoBehaviour
 
 
     public SteeringOutput Flock() {
-        DynamicFlocking f = new DynamicFlocking(agent.k, agent.boidsList, maxAcceleration);
+        DynamicFlocking f = new DynamicFlocking(agent.k, agent.boidsList, maxAcceleration, weightSeparate, weightAlign, weightCohesion);
         
         return ObstacleAvoidance(f);
     }

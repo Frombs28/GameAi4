@@ -937,13 +937,20 @@ public class DynamicFlocking : SteeringBehaviour
     public float avoidDistance;
     public float lookahead;
     public NPCController lastNeighbor;
+    public float sepWeight;
+    public float alignWeight;
+    public float cohesionWeight;
 
-    public DynamicFlocking(Kinematic _character, List<NPCController> _boids, float _maxAcceleration
-                            )
+
+    public DynamicFlocking(Kinematic _character, List<NPCController> _boids, float _maxAcceleration,
+                            float _sepWeight, float _alignWeight, float _cohesionWeight)
     {
         character = _character;
         boids = _boids;
         maxAcceleration = _maxAcceleration;
+        sepWeight = _sepWeight;
+        alignWeight = _alignWeight;
+        cohesionWeight = _cohesionWeight;
         //avoidDistance = _avoidDistance;
         //lookahead = _lookahead;
 
@@ -958,9 +965,10 @@ public class DynamicFlocking : SteeringBehaviour
             return new SteeringOutput();
         }
         SteeringOutput steering = new SteeringOutput();
-        steering.linear = Separation().linear + Cohesion().linear;
+        steering.linear = Separation().linear * sepWeight + Cohesion().linear * cohesionWeight;
 
         steering = VelocityMatchAndAlign(steering);
+        steering.linear *= alignWeight;
         steering.linear*= 10f;
        
         return steering;
@@ -974,6 +982,7 @@ public class DynamicFlocking : SteeringBehaviour
             }
             if((boid.k.position - character.position).magnitude < 10f){
                 nh.Add(boid);
+                
                 //Debug.DrawLine(character.position, boid.k.position, Color.blue);
                 
             }
@@ -1008,6 +1017,7 @@ public class DynamicFlocking : SteeringBehaviour
 
         foreach (NPCController b in _nh)
         {
+
             center += b.k.velocity;
             count++;
         }

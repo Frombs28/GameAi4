@@ -2619,7 +2619,7 @@ PrefabInstance:
     - target: {fileID: 114671874507944792, guid: cb9f2757d4b88f94298bd5a6f5de77aa,
         type: 3}
       propertyPath: mapState
-      value: 1
+      value: 13
       objectReference: {fileID: 0}
     - target: {fileID: 114839489207466526, guid: cb9f2757d4b88f94298bd5a6f5de77aa,
         type: 3}
@@ -4706,7 +4706,7 @@ PrefabInstance:
     - target: {fileID: 114671874507944792, guid: cb9f2757d4b88f94298bd5a6f5de77aa,
         type: 3}
       propertyPath: mapState
-      value: 1
+      value: 13
       objectReference: {fileID: 0}
     - target: {fileID: 114839489207466526, guid: cb9f2757d4b88f94298bd5a6f5de77aa,
         type: 3}
