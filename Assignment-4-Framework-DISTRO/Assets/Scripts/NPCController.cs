@@ -68,18 +68,26 @@ public class NPCController : MonoBehaviour
         };
 
         boidsList = new List<NPCController>();
-        GameObject boidParent = GameObject.Find("Boids");
-        for (int i = 0; i < boidParent.transform.childCount; i++)
-        {
-            if (boidParent.transform.GetChild(i).gameObject.activeInHierarchy)
-            {
-
-                boidsList.Add(boidParent.transform.GetChild(i).GetComponent<NPCController>());
-            }
-            
+        GameObject boidParent = null;
+        if (transform.parent) {
+            boidParent = transform.parent.gameObject;
         }
+        //GameObject boidParent = GameObject.Find("Boids");
+        if (boidParent!= null) {
+            for (int i = 0; i < boidParent.transform.childCount; i++)
+            {
+                if (boidParent.transform.GetChild(i).gameObject.activeInHierarchy)
+                {
 
-        boidsList.Add(GameObject.Find("Red").GetComponent<NPCController>());
+                    boidsList.Add(boidParent.transform.GetChild(i).GetComponent<NPCController>());
+                }
+
+            }
+
+            boidsList.Add(GameObject.Find("Red").GetComponent<NPCController>());
+
+        }
+        
 
     }
 
