@@ -709,6 +709,7 @@ class DynamicObstacleAvoidance : SteeringBehaviour
 
             rotRayVec.Scale(new Vector3(1f, 0f, 1f));
             Debug.DrawRay(s.getCharacter().position, rotRayVec, Color.cyan);
+            s.getCharacter().owner.GetComponent<NPCController>().DrawLine(s.getCharacter().owner.transform.position, rotRayVec * lookahead);
             if (Physics.Raycast(s.getCharacter().position, rotRayVec, out collisionDetector, lookahead))
             {
 
