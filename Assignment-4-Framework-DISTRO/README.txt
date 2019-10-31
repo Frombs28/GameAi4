@@ -4,13 +4,8 @@ Simon Hopkins: Flocking, Flocking through Obstacle Course
 In general, our flocking utilizes several behaviors from previous assignments that we re-use for the flocking.
 These can all be found in SteeringBehvior.cs, and they are called in NPCController.cs.
 
--Separation uses 7 raycasts to determine if any flock members are too close to this boid, and if any flock members are too close,
-it calls basic Evade, where the "target" (the one the boid is moving away from) is whichever flock member is closest.
-
--Alignment simply uses align and pursue to ensure the boids are all moving towards the flock leader.
-
--Cohesion finds the centroid of the flock, or the middle point of all memebers, and calls basic seek on the flock members, with the target
-being this centroid.
+Part 1 contains a flock following the Red player. However, it also contains flock members that the player can pick up by going near them. Although at first the individual
+flock members will be wary of joining the flock (they will move away), they will quickly join the flock.
 
 1) What are the weights of the three steering behaviors in your flocking model?
 I recommend “surfacing those weights as public variables you can edit in the Inspector.

@@ -65,8 +65,8 @@ public class FieldMapManager : MonoBehaviour {
         narrator.text = "Part 1: Flocking Behavior. The blue boids follow the red player character, flocking appropriately.";
         foreach(GameObject boid in boids){
             NPCController npc = boid.GetComponent<NPCController>();
-            npc.NewTarget(player.GetComponent<NPCController>());
-            npc.mapState = 12;
+            //npc.NewTarget(player.GetComponent<NPCController>());
+            npc.mapState = 13;
         }
         
     }
