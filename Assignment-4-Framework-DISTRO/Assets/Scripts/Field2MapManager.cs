@@ -22,7 +22,6 @@ public class Field2MapManager : MonoBehaviour
     public GameObject follow1;
     public List<GameObject> boids2;
     public GameObject follow2;
-    public GameObject coTarget;
     public GameObject[] Path1;
     public GameObject[] Path2;
     public Text narrator;

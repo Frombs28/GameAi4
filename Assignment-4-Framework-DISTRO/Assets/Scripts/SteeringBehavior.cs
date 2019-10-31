@@ -115,7 +115,7 @@ public class SteeringBehavior : MonoBehaviour
         DynamicArrive da = new DynamicArrive(agent.k, target.k, maxAcceleration, maxSpeed, targetRadiusL, slowRadiusL);
         agent.DrawCircle(target.k.position, slowRadiusL);
         SteeringOutput so = da.getSteering();
-        if (pathFollow && !change && current < 3)
+        if (pathFollow && !change && current < Path.Count-1)
         {
             current++;
             change = true;
