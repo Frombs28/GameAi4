@@ -258,6 +258,7 @@ public class NPCController : MonoBehaviour
             case 13:
                 
                 linear = ai.Flock().linear;
+                angular = ai.Flock().angular;
                 break;
         }
         if (mapState == 10)

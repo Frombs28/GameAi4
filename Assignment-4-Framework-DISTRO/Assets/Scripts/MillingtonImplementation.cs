@@ -711,9 +711,8 @@ class DynamicObstacleAvoidance : SteeringBehaviour
             Debug.DrawRay(s.getCharacter().position, rotRayVec, Color.cyan);
             if (Physics.Raycast(s.getCharacter().position, rotRayVec, out collisionDetector, lookahead))
             {
-                Debug.Log(s.getCharacter().owner.name +"colliding with" + collisionDetector.collider.gameObject.name);
+
                 if (collisionDetector.collider.gameObject == s.getCharacter().owner) {
-                    Debug.Log("continue");
                     continue;
                 }
 
@@ -937,7 +936,7 @@ public class DynamicFlocking : SteeringBehaviour
     public float maxAcceleration;
     public float avoidDistance;
     public float lookahead;
-
+    public NPCController lastNeighbor;
 
     public DynamicFlocking(Kinematic _character, List<NPCController> _boids, float _maxAcceleration
                             )
@@ -953,15 +952,17 @@ public class DynamicFlocking : SteeringBehaviour
     public SteeringOutput getSteering()
     {
         if (prepareNeighourhood().Count == 0) {
-
+            if (lastNeighbor != null) {
+                return new DynamicSeek(character, lastNeighbor.k, maxAcceleration).getSteering();
+            }
             return new SteeringOutput();
         }
         SteeringOutput steering = new SteeringOutput();
         steering.linear = Separation().linear + Cohesion().linear;
 
         steering = VelocityMatchAndAlign(steering);
-        steering.linear *= 20f;
-
+        steering.linear*= 10f;
+       
         return steering;
     }
 
@@ -973,10 +974,17 @@ public class DynamicFlocking : SteeringBehaviour
             }
             if((boid.k.position - character.position).magnitude < 10f){
                 nh.Add(boid);
-                Debug.DrawLine(character.position, boid.k.position, Color.blue);
+                //Debug.DrawLine(character.position, boid.k.position, Color.blue);
+                
             }
 
         }
+        if (nh.Count != 0) {
+            lastNeighbor = nh[0];
+        }
+
+
+
 
         return nh;
     }
@@ -990,6 +998,7 @@ public class DynamicFlocking : SteeringBehaviour
             count++;
         }
 
+        
         return center / count;
     }
 
@@ -1011,7 +1020,7 @@ public class DynamicFlocking : SteeringBehaviour
             position = getNeighborhoodCenter(prepareNeighourhood())
             
         };
-
+        Debug.DrawLine(character.position, cotm.position, Color.blue);
 
 
         DynamicFlee df = new DynamicFlee(character, cotm, maxAcceleration);
@@ -1023,14 +1032,15 @@ public class DynamicFlocking : SteeringBehaviour
         {
             position = getNeighborhoodCenter(prepareNeighourhood())
         };
+        Debug.DrawLine(character.position, cotm.position, Color.green);
         DynamicSeek ds = new DynamicSeek(character, cotm, maxAcceleration);
         return ds.getSteering();
     }
 
     public SteeringOutput VelocityMatchAndAlign(SteeringOutput output) {
         Vector3 vel = getNeighbourhoodAverageVelocity(prepareNeighourhood());
-        output.linear = vel - character.velocity;
-        if (output.linear.sqrMagnitude > maxAcceleration)
+        output.linear += vel - character.velocity;
+        if (output.linear.magnitude > maxAcceleration)
         {
             output.linear.Normalize();
             output.linear *= maxAcceleration;
@@ -1038,9 +1048,12 @@ public class DynamicFlocking : SteeringBehaviour
 
         Kinematic targetToFace = new Kinematic() {
             position = character.position + output.linear*10f
+            
         };
 
-        Debug.DrawLine(character.position, targetToFace.position, Color.green);
+
+        
+
         DynamicAlign a = new DynamicAlign(character, targetToFace, 100f, 100f, 100f, 100f);
         output.angular = new DynamicFace(targetToFace, a).getSteering().angular;
         return output;
